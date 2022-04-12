@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="bluetooth_listview" type="id"/>
+    <item name="send_button" type="id"/>
+    <item name="send_message_text" type="id"/>
+    <item name="search_devices" type="id" />
+    <item name="bluetooth_enabled" type="id" />
+    <item name="list_paired_devices" type="id" />
+    <item name="paired_devices_text" type="id" />
+    <item name="aval_devices_text" type="id" />
+    <item name="list_aval_devices" type="id" />
+    <item name="device_item" type="id" />
+    <item name="progress_devices" type="id" />
+</resources>

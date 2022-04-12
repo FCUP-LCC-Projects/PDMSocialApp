@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SocialApp</string>
+    <string name="send_message">Send</string>
+    <string name="search_devices_text">Search Devices</string>
+    <string name="bluetooth_enabled_text">Bluetooth Enabled</string>
+    <string name="available_devices">Available Devices</string>
+    <string name="paired_devices">Paired Devices</string>
+    <string name="scan_devices">Scan Devices</string>
+    <string name="login">LOGIN</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+</resources>
