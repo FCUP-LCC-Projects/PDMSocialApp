@@ -1,0 +1,68 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <FrameLayout
+        android:id="@+id/settings"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <TextView
+            android:id="@+id/about"
+            android:layout_width="match_parent"
+            android:layout_height="39dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="30dp"
+            android:text="@string/about"
+            android:textAlignment="viewStart"
+            android:textSize="28dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/help"
+            android:layout_width="match_parent"
+            android:layout_height="39dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="100dp"
+            android:text="@string/help"
+            android:textAlignment="viewStart"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/account"
+            android:layout_width="match_parent"
+            android:layout_height="39dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="180dp"
+            android:text="@string/account"
+            android:textAlignment="viewStart"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/account_management"
+            android:layout_width="match_parent"
+            android:layout_height="39dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="550dp"
+            android:text="@string/manage_your_session"
+            android:textAlignment="viewStart"
+            android:textColor="#000000"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/logout_text"
+            android:layout_width="200dp"
+            android:layout_height="39dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="620dp"
+            android:text="@string/logout"
+            android:textColor="#3f81cc"
+            android:textAlignment="viewStart"
+            android:textSize="28dp"
+            android:textStyle="normal" />
+
+    </FrameLayout>
+</LinearLayout>
