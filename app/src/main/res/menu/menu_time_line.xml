@@ -1,0 +1,53 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.socialapp.TimeLineActivity">
+
+    <item
+        android:id="@id/action_post"
+        android:orderInCategory="98"
+        android:icon="@drawable/ic_add_post"
+        android:title="@string/create_a_new_post"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@id/action_chat"
+        android:orderInCategory="99"
+        android:icon="@drawable/ic_chat"
+        android:title="@string/open_chat"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@id/action_settings"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/action_settings"
+        app:showAsAction="always">
+
+        <menu>
+
+
+        <item
+            android:orderInCategory="99"
+            android:id = "@id/settings_manage"
+            android:title = "@string/title_activity_settings"
+            app:showAsAction = "never"
+            />
+
+        <item
+            android:orderInCategory="98"
+            android:id = "@id/settings_profile"
+            android:title = "@string/profile"
+            app:showAsAction = "never"
+            />
+
+        <item
+            android:orderInCategory="100"
+            android:id = "@id/settings_logout"
+            android:title = "@string/logout"
+            app:showAsAction="never"
+            />
+
+        </menu>
+    </item>
+</menu>

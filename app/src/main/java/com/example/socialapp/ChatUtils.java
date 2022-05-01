@@ -25,7 +25,7 @@ public class ChatUtils {
     private ExchangeThread exchangeThread;
     private AckThread ackThread;
     private final UUID APP_UUID = UUID.fromString("b0a1cff4-9b6b-464c-864f-7f7529e05c04"); //randomly generated
-    private final String APP_NAME = "PDM_APP";
+
 
     public static final int STATE_NONE = 0;
     public static final int STATE_LISTEN = 1;
@@ -45,7 +45,7 @@ public class ChatUtils {
 
     public synchronized void setState(int state) {
         this.state = state;
-        handler.obtainMessage(ChatActivity.MESSAGE_STATE_CHANGED, state, -1).sendToTarget();
+        handler.obtainMessage(CommCodes.MESSAGE_STATE_CHANGED, state, -1).sendToTarget();
     }
 
     public void connect(BluetoothDevice device) {
@@ -126,9 +126,9 @@ public class ChatUtils {
         exchangeThread = new ExchangeThread(socket);
         exchangeThread.start();
 
-        Message message = handler.obtainMessage(ChatActivity.MESSAGE_DEVICE_NAME);
+        Message message = handler.obtainMessage(CommCodes.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(ChatActivity.DEVICE_NAME, device.getName());
+        bundle.putString(CommCodes.DEVICE_NAME, device.getName());
         message.setData(bundle);
         handler.sendMessage(message);
 
@@ -136,9 +136,9 @@ public class ChatUtils {
     }
 
     private synchronized void connectionFailed() {
-        Message message = handler.obtainMessage(ChatActivity.MESSAGE_TOAST);
+        Message message = handler.obtainMessage(CommCodes.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(ChatActivity.TOAST_MESSAGE, "Can't Connect to the Device");
+        bundle.putString(CommCodes.TOAST_MESSAGE, "Can't Connect to the Device");
         message.setData(bundle);
         handler.sendMessage(message);
 
@@ -199,7 +199,7 @@ public class ChatUtils {
         public AckThread(){
             BluetoothServerSocket tempServerSocket = null;
             try{
-                tempServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(APP_NAME,APP_UUID);
+                tempServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(CommCodes.APP_NAME,APP_UUID);
             }catch(IOException e) {
                 Log.e("AckThread.constructor", e.toString());
             }
@@ -262,7 +262,7 @@ public class ChatUtils {
 
             try {
                 bytes = inputStream.read(buffer);
-                handler.obtainMessage(ChatActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                handler.obtainMessage(CommCodes.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
             } catch (IOException e) {
                 lostConnection();
             }
@@ -271,7 +271,7 @@ public class ChatUtils {
         public void write(byte[] buffer){
             try{
                 outputStream.write(buffer);
-                handler.obtainMessage(ChatActivity.MESSAGE_WRITE, -1, -1, buffer);
+                handler.obtainMessage(CommCodes.MESSAGE_WRITE, -1, -1, buffer);
             }catch(IOException e){
 
             }
@@ -287,9 +287,9 @@ public class ChatUtils {
     }
 
     private void lostConnection() {
-        Message message = handler.obtainMessage(ChatActivity.MESSAGE_TOAST);
+        Message message = handler.obtainMessage(CommCodes.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(ChatActivity.TOAST_MESSAGE, "Connection Lost");
+        bundle.putString(CommCodes.TOAST_MESSAGE, "Connection Lost");
         message.setData(bundle);
         handler.sendMessage(message);
     }

@@ -19,6 +19,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SocialApp">
         <activity
+            android:name=".TimeLineActivity"
+            android:exported="false"
+            android:label="@string/title_activity_time_line"
+            android:theme="@style/Theme.SocialApp.NoActionBar" />
+        <activity
             android:name=".SignInActivity"
             android:exported="true">
             <intent-filter>
@@ -27,13 +32,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CreateProfileActivity"
+            android:exported="false"/>
+
         <activity
             android:name=".ListDevicesActivity"
             android:exported="false" />
         <activity
+            android:name=".RegistrationActivity"
+            android:exported="false" />
+        <activity
             android:name=".ChatActivity"
-            android:exported="true">
-        </activity>
+            android:exported="true"/>
     </application>
 
 </manifest>

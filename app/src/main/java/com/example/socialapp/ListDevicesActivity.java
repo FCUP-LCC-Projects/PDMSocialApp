@@ -105,7 +105,7 @@ public class ListDevicesActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_menu_activity, menu);
+        getMenuInflater().inflate(R.menu.device_list_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -113,6 +113,7 @@ public class ListDevicesActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch(item.getItemId()){
             case R.id.menu_scan_devices:
+                scanDevices();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

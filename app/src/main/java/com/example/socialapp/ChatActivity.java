@@ -22,6 +22,7 @@ import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,14 +34,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatUtils chatUtils;
     private BluetoothAdapter bluetoothAdapter;
     private final int REQUEST_LOCATION_PERMISSION = 101;
-    public static final String DEVICE_NAME = "deviceName";
-    public static final String TOAST_MESSAGE = "toastMessage";
 
-    public static final int MESSAGE_STATE_CHANGED = 0;
-    public static final int MESSAGE_TOAST = 1;
-    public static final int MESSAGE_READ = 2;
-    public static final int MESSAGE_DEVICE_NAME = 3;
-    public static final int MESSAGE_WRITE = 4;
 
     private ListView listBluetoothChat;
     private EditText editMessageBlock;
@@ -52,7 +46,7 @@ public class ChatActivity extends AppCompatActivity {
         @Override
         public boolean handleMessage(@NonNull Message message) {
             switch(message.what){
-                case MESSAGE_STATE_CHANGED:
+                case CommCodes.MESSAGE_STATE_CHANGED:
                     switch(message.arg1){
                         case ChatUtils.STATE_NONE: setState("Not Connected"); break;
                         case ChatUtils.STATE_LISTEN: setState("Not Connected"); break;
@@ -60,18 +54,18 @@ public class ChatActivity extends AppCompatActivity {
                         case ChatUtils.STATE_CONNECTING: setState("Connected "+connectedDevice); break;
                     }
                     break;
-                case MESSAGE_DEVICE_NAME:
-                    connectedDevice = message.getData().getString(DEVICE_NAME);
+                case CommCodes.MESSAGE_DEVICE_NAME:
+                    connectedDevice = message.getData().getString(CommCodes.DEVICE_NAME);
                     break;
-                case MESSAGE_READ:
+                case CommCodes.MESSAGE_READ:
                     byte[] buffer = (byte[]) message.obj;
                     String inBuffer = new String(buffer, 0, message.arg1);
                     messageAdapter.add(connectedDevice + ": "+inBuffer);
                     break;
-                case MESSAGE_TOAST:
-                    Toast.makeText(context, message.getData().getString(TOAST_MESSAGE), Toast.LENGTH_SHORT).show();
+                case CommCodes.MESSAGE_TOAST:
+                    Toast.makeText(context, message.getData().getString(CommCodes.TOAST_MESSAGE), Toast.LENGTH_SHORT).show();
                     break;
-                case MESSAGE_WRITE:
+                case CommCodes.MESSAGE_WRITE:
                     byte[] buffer2 = (byte[]) message.obj;
                     String outBuffer = new String(buffer2);
                     messageAdapter.add("Me: "+outBuffer);
@@ -134,16 +128,18 @@ public class ChatActivity extends AppCompatActivity {
         messageAdapter = new ArrayAdapter<String>(context, R.layout.device_list_item);
         listBluetoothChat.setAdapter(messageAdapter);
 
-        listBluetoothChat.setOnClickListener(new View.OnClickListener() {
+        listBluetoothChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String message = editMessageBlock.getText().toString();
-                if(!message.isEmpty()){
+                if (!message.isEmpty()) {
                     editMessageBlock.setText("");
                     chatUtils.write(message.getBytes());
                 }
             }
         });
+
+
     }
 
     @Override

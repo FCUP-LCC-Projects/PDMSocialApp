@@ -11,4 +11,14 @@
     <item name="list_aval_devices" type="id" />
     <item name="device_item" type="id" />
     <item name="progress_devices" type="id" />
+    <item name="action_post" type="id" />
+    <item name="action_chat" type="id" />
+    <item name="action_settings" type="id" />
+    <item name="timeline_view" type="id" />
+    <item name="timeline_recycleview_item" type="id" />
+    <item name="timeline_item_text" type="id" />
+    <item name="settings_manage" type="id" />
+    <item name="settings_profile" type="id" />
+    <item name="settings_logout" type="id" />
+    <item name="create_profile_title" type="id" />
 </resources>
