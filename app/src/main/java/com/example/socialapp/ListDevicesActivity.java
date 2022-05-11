@@ -21,6 +21,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.Set;
 
 public class ListDevicesActivity extends AppCompatActivity {
@@ -77,18 +88,29 @@ public class ListDevicesActivity extends AppCompatActivity {
         progressScan = findViewById(R.id.progress_devices);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        getUsername().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                bluetoothAdapter.setName(task.getResult());
+            }
+        });
+
+
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
 
         listAvalDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String info = ((TextView) view).getText().toString();
-                String address = info.substring(info.length()-17);
+                String address = info.substring(info.length() - 17);
 
+                //Intent intent = new Intent(ListDevicesActivity.this, ChatActivity.class);
                 Intent intent = new Intent();
                 intent.putExtra("address", address);
                 setResult(RESULT_OK, intent);
                 finish();
+                //startActivity(intent);
             }
         });
 
@@ -115,11 +137,26 @@ public class ListDevicesActivity extends AppCompatActivity {
             case R.id.menu_scan_devices:
                 scanDevices();
                 return true;
+            case R.id.bluetooth_enabled:
+                enableBluetooth();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @SuppressLint("MissingPermission")
+    private void enableBluetooth() {
+        if (!bluetoothAdapter.isEnabled()) {
+            bluetoothAdapter.enable();
+        }
+
+        if(bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE){
+            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 240);
+            startActivity(discoverableIntent);
+        }
+    }
 
     @SuppressLint("MissingPermission")
     private void scanDevices(){
@@ -130,5 +167,29 @@ public class ListDevicesActivity extends AppCompatActivity {
             bluetoothAdapter.cancelDiscovery();
         }
         bluetoothAdapter.startDiscovery();
+    }
+
+    protected static Task<String> getUsername(){
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DatabaseReference databaseReference = firebaseDatabase.getReference(firebaseAuth.getUid());
+        final TaskCompletionSource<String> taskCompletionSource = new TaskCompletionSource<>();
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserProfile userProfile = snapshot.getValue(UserProfile.class);
+                taskCompletionSource.setResult(userProfile.getUsername());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                System.out.println("The read failed: " + error.getCode());
+                taskCompletionSource.setException(error.toException());
+            }
+        });
+
+        return taskCompletionSource.getTask();
     }
 }

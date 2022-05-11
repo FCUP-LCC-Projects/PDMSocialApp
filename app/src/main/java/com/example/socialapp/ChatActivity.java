@@ -128,9 +128,9 @@ public class ChatActivity extends AppCompatActivity {
         messageAdapter = new ArrayAdapter<String>(context, R.layout.device_list_item);
         listBluetoothChat.setAdapter(messageAdapter);
 
-        listBluetoothChat.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onClick(View view) {
                 String message = editMessageBlock.getText().toString();
                 if (!message.isEmpty()) {
                     editMessageBlock.setText("");
@@ -138,7 +138,6 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
-
 
     }
 
@@ -154,9 +153,6 @@ public class ChatActivity extends AppCompatActivity {
         switch (itemId) {
             case R.id.search_devices:
                 checkPermissions();
-                return true;
-            case R.id.bluetooth_enabled:
-                enableBluetooth();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -190,19 +186,6 @@ public class ChatActivity extends AppCompatActivity {
         }
         else{
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void enableBluetooth() {
-        if (!bluetoothAdapter.isEnabled()) {
-            bluetoothAdapter.enable();
-        }
-
-        if(bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE){
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 240);
-            startActivity(discoverableIntent);
         }
     }
 

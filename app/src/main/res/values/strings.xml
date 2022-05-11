@@ -31,4 +31,8 @@
     <string name="profile">Profile</string>
     <string name="create_profile">Create Profile</string>
     <string name="back">Back</string>
+    <string name="longText">This is a long text
+    with multiple lines to test if this works
+    with long texts like this </string>
+    <string name="search_for_posts">Search for New Posts</string>
 </resources>

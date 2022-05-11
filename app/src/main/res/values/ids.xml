@@ -21,4 +21,11 @@
     <item name="settings_profile" type="id" />
     <item name="settings_logout" type="id" />
     <item name="create_profile_title" type="id" />
+    <item name="fragment_post_date" type="id" />
+    <item name="fragment_post_send" type="id" />
+    <item name="fragment_post_back" type="id" />
+    <item name="timeline_item_user" type="id" />
+    <item name="timeline_item_date" type="id" />
+    <item name="post_fragment" type="id" />
+    <item name="action_search" type="id" />
 </resources>

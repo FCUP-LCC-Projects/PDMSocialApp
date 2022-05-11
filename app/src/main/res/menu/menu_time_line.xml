@@ -4,6 +4,14 @@
     tools:context="com.example.socialapp.TimeLineActivity">
 
     <item
+        android:id="@id/action_search"
+        android:orderInCategory="97"
+        android:icon="@drawable/refresh_new_posts"
+        android:title="@string/search_for_posts"
+        app:showAsAction="always"
+        />
+
+    <item
         android:id="@id/action_post"
         android:orderInCategory="98"
         android:icon="@drawable/ic_add_post"

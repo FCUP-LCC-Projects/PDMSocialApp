@@ -2,15 +2,11 @@
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+
     <item
         android:id="@id/search_devices"
         android:icon="@drawable/ic_add_device"
         android:title="@string/search_devices_text"
         app:showAsAction="always" />
 
-    <item
-        android:id="@id/bluetooth_enabled"
-        android:icon="@drawable/ic_bluetooth_connected"
-        android:title="@string/bluetooth_enabled_text"
-        app:showAsAction="always" />
 </menu>
