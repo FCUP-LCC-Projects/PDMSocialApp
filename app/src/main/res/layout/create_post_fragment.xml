@@ -7,14 +7,14 @@
     android:id="@id/post_fragment">
 
     <LinearLayout
-        android:layout_width="400dp"
-        android:layout_height="200dp"
+        android:layout_width="362dp"
+        android:layout_height="192dp"
+        android:orientation="vertical"
+        android:padding="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:orientation="vertical">
-
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <EditText
@@ -23,17 +23,29 @@
             android:layout_height="wrap_content"
             android:inputType="textMultiLine" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@id/fragment_post_send"
-            android:text="@string/send_message" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginTop="40sp">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@id/fragment_post_back"
-            android:text="@string/back" />
+            <Button
+                android:id="@id/fragment_post_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/back" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@id/fragment_post_send"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/send_message" />
+        </LinearLayout>
 
 
     </LinearLayout>

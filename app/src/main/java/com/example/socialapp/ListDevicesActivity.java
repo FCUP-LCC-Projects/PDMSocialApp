@@ -3,7 +3,6 @@ package com.example.socialapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -11,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +25,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -42,8 +41,7 @@ public class ListDevicesActivity extends AppCompatActivity {
     private BluetoothAdapter bluetoothAdapter;
 
 
-    private BroadcastReceiver deviceListener = new BroadcastReceiver() {
-        @SuppressLint("MissingPermission")
+    private final BroadcastReceiver deviceListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -51,8 +49,12 @@ public class ListDevicesActivity extends AppCompatActivity {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice intentDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-                if (intentDevice.getBondState() != BluetoothDevice.BOND_BONDED)
-                    adapterAval.add(intentDevice.getName() + "\n" + intentDevice.getAddress());
+                try {
+                    if (intentDevice != null && intentDevice.getBondState() != BluetoothDevice.BOND_BONDED)
+                        adapterAval.add(intentDevice.getName() + "\n" + intentDevice.getAddress());
+                } catch (SecurityException e) {
+                    Log.e("BondStateSec", e.toString());
+                }
             }
             else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
                 progressScan.setVisibility(View.GONE);
@@ -74,13 +76,28 @@ public class ListDevicesActivity extends AppCompatActivity {
         initDevices();
     }
 
-    @SuppressLint("MissingPermission")
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        try {
+            if (bluetoothAdapter != null)
+                bluetoothAdapter.cancelDiscovery();
+        }catch(SecurityException se){
+            Log.e("OnDestroySec", se.toString());
+        }
+
+        unregisterReceiver(deviceListener);
+    }
+
+
     private void initDevices(){
         listAvalDevices = findViewById(R.id.list_aval_devices);
         listPairedDevices = findViewById(R.id.list_paired_devices);
 
-        adapterPaired = new ArrayAdapter<String>(context, R.layout.device_list_item);
-        adapterAval = new ArrayAdapter<String>(context, R.layout.device_list_item);
+        adapterPaired = new ArrayAdapter<>(context, R.layout.device_list_item);
+        adapterAval = new ArrayAdapter<>(context, R.layout.device_list_item);
 
         listPairedDevices.setAdapter(adapterPaired);
         listAvalDevices.setAdapter(adapterAval);
@@ -89,40 +106,64 @@ public class ListDevicesActivity extends AppCompatActivity {
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+
         getUsername().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
             public void onComplete(@NonNull Task<String> task) {
-                bluetoothAdapter.setName(task.getResult());
+                try{ bluetoothAdapter.setName(task.getResult()); }
+                catch(SecurityException e){ Log.e("SetNameSec", e.toString());}
             }
         });
 
+        Set<BluetoothDevice> pairedDevices = null;
+        try {
+            pairedDevices = bluetoothAdapter.getBondedDevices();
+        }catch(SecurityException e){ Log.e("BondedDevicesSec", e.toString());}
 
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        listPairedDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                onDeviceClickStart(view);
+            }
+        });
 
         listAvalDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String info = ((TextView) view).getText().toString();
-                String address = info.substring(info.length() - 17);
-
-                //Intent intent = new Intent(ListDevicesActivity.this, ChatActivity.class);
-                Intent intent = new Intent();
-                intent.putExtra("address", address);
-                setResult(RESULT_OK, intent);
-                finish();
-                //startActivity(intent);
+                onDeviceClickStart(view);
             }
         });
 
-        if(pairedDevices.size() >0 && pairedDevices != null){
-            for(BluetoothDevice device : pairedDevices)
-                adapterPaired.add( device.getName() + "\n" + device.getAddress());
+        try {
+            if (pairedDevices!= null && pairedDevices.size() > 0) {
+                for (BluetoothDevice device : pairedDevices)
+                    adapterPaired.add(device.getName() + "\n" + device.getAddress());
+            }
+        }catch (SecurityException e){
+            Log.e("AddDevicesScan", e.toString());
         }
 
         IntentFilter intentFilterFound = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(deviceListener, intentFilterFound);
         IntentFilter intentFilterFinished = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(deviceListener, intentFilterFinished);
+    }
+
+
+    private void onDeviceClickStart(View view){
+        try{
+            bluetoothAdapter.cancelDiscovery();
+        }catch (SecurityException e){
+            Log.e("StartCommSec", e.toString());
+        }
+
+        String info = ((TextView) view).getText().toString();
+        String address = info.substring(info.length() - 17);
+
+        Intent intent = new Intent(ListDevicesActivity.this, ChatActivity.class);
+        intent.putExtra("address", address);
+        setResult(RESULT_OK, intent);
+        startActivity(intent);
     }
 
     @Override
@@ -145,34 +186,36 @@ public class ListDevicesActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private void enableBluetooth() {
-        if (!bluetoothAdapter.isEnabled()) {
-            bluetoothAdapter.enable();
-        }
 
-        if(bluetoothAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE){
-            Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-            discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 240);
-            startActivity(discoverableIntent);
+    private void enableBluetooth() {
+        try {
+            if (!bluetoothAdapter.isEnabled()) {
+                bluetoothAdapter.enable();
+            }
+        } catch (SecurityException e) {
+            Log.e("EnableBluetooth", e.toString());
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private void scanDevices(){
+    private void scanDevices() {
         progressScan.setVisibility(View.VISIBLE);
         adapterAval.clear();
 
-        if(bluetoothAdapter.isDiscovering()){
-            bluetoothAdapter.cancelDiscovery();
+        setTitle(R.string.scanning);
+
+        try {
+            if (bluetoothAdapter.isDiscovering()) {
+                bluetoothAdapter.cancelDiscovery();
+            }
+            bluetoothAdapter.startDiscovery();
+        } catch (SecurityException e) {
+            Log.e("ScanDevices", e.toString());
         }
-        bluetoothAdapter.startDiscovery();
     }
 
     protected static Task<String> getUsername(){
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference databaseReference = firebaseDatabase.getReference(firebaseAuth.getUid());
         final TaskCompletionSource<String> taskCompletionSource = new TaskCompletionSource<>();
 

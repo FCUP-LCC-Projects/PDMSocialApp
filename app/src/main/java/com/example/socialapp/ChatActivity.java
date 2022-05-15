@@ -1,66 +1,66 @@
 package com.example.socialapp;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+
+import java.util.LinkedList;
+import java.util.Objects;
+
 public class ChatActivity extends AppCompatActivity {
     private Context context;
     private ChatUtils chatUtils;
     private BluetoothAdapter bluetoothAdapter;
-    private final int REQUEST_LOCATION_PERMISSION = 101;
-
 
     private ListView listBluetoothChat;
     private EditText editMessageBlock;
     private Button sendMessageButton;
+    private LinkedList<String> messageList;
     private ArrayAdapter<String> messageAdapter;
 
-    private String connectedDevice;
-    private Handler handler = new Handler(new Handler.Callback() {
+    private String connectedDevice = "";
+    private final Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message message) {
             switch(message.what){
                 case CommCodes.MESSAGE_STATE_CHANGED:
                     switch(message.arg1){
-                        case ChatUtils.STATE_NONE: setState("Not Connected"); break;
+                        case ChatUtils.STATE_NONE:
                         case ChatUtils.STATE_LISTEN: setState("Not Connected"); break;
                         case ChatUtils.STATE_CONNECTED: setState("Connecting..."); break;
-                        case ChatUtils.STATE_CONNECTING: setState("Connected "+connectedDevice); break;
+                        case ChatUtils.STATE_CONNECTING:
+                            setState("Connected "+connectedDevice);
+                            messageAdapter.clear();
+                            break;
                     }
                     break;
                 case CommCodes.MESSAGE_DEVICE_NAME:
                     connectedDevice = message.getData().getString(CommCodes.DEVICE_NAME);
+                    Toast.makeText(context,"Connected to " + connectedDevice, Toast.LENGTH_SHORT).show();
                     break;
                 case CommCodes.MESSAGE_READ:
                     byte[] buffer = (byte[]) message.obj;
                     String inBuffer = new String(buffer, 0, message.arg1);
-                    messageAdapter.add(connectedDevice + ": "+inBuffer);
+                    if(!inBuffer.isEmpty()){
+                        Log.d("Message Received", "message");
+                        messageAdapter.add(connectedDevice + ": "+inBuffer);
+                    }
                     break;
                 case CommCodes.MESSAGE_TOAST:
                     Toast.makeText(context, message.getData().getString(CommCodes.TOAST_MESSAGE), Toast.LENGTH_SHORT).show();
@@ -68,8 +68,9 @@ public class ChatActivity extends AppCompatActivity {
                 case CommCodes.MESSAGE_WRITE:
                     byte[] buffer2 = (byte[]) message.obj;
                     String outBuffer = new String(buffer2);
-                    messageAdapter.add("Me: "+outBuffer);
-
+                    if(!outBuffer.isEmpty())
+                        messageAdapter.add("Me: "+outBuffer);
+                    Log.d("Message Sent", "message");
                     break;
             }
             return false;
@@ -77,23 +78,8 @@ public class ChatActivity extends AppCompatActivity {
     });
 
 
-
-    ActivityResultLauncher<Intent> selectDeviceLauncher =  registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent intent = getIntent();
-                        String address = intent.getStringExtra("address");
-                        chatUtils.connect(BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address));
-                    }
-                }
-            }
-    );
-
     private void setState(CharSequence subTitle){
-        getSupportActionBar().setSubtitle(subTitle);
+        Objects.requireNonNull(getSupportActionBar()).setSubtitle(subTitle);
     }
 
     @Override
@@ -114,6 +100,17 @@ public class ChatActivity extends AppCompatActivity {
         initChatComponents();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getSupportActionBar().setSubtitle(connectedDevice);
+        if(chatUtils != null){
+            if(chatUtils.getState() == ChatUtils.STATE_NONE)
+                chatUtils.start();
+        }
+    }
+
     private void initBluetoothAdapter() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null)
@@ -125,8 +122,11 @@ public class ChatActivity extends AppCompatActivity {
         editMessageBlock = findViewById(R.id.send_message_text);
         sendMessageButton = findViewById(R.id.send_button);
 
-        messageAdapter = new ArrayAdapter<String>(context, R.layout.device_list_item);
+        messageList = new LinkedList<String>();
+        messageAdapter = new ArrayAdapter<String>(context, R.layout.message_item, messageList);
         listBluetoothChat.setAdapter(messageAdapter);
+
+
 
         sendMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,16 +134,34 @@ public class ChatActivity extends AppCompatActivity {
                 String message = editMessageBlock.getText().toString();
                 if (!message.isEmpty()) {
                     editMessageBlock.setText("");
-                    chatUtils.write(message.getBytes());
+                    sendMessage(message);
                 }
             }
         });
 
+        Intent intent = getIntent();
+        String address = intent.getStringExtra("address");
+
+        Log.d("Device Address", address);
+
+        chatUtils.connect(BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address));
+    }
+
+    private void sendMessage(String message) {
+        if(chatUtils.getState() != ChatUtils.STATE_CONNECTED){
+            Toast.makeText(context, "Not Connected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(message.length() >0){
+            byte[] text = message.getBytes();
+            chatUtils.write(text);
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_menu_activity, menu);
+        //getMenuInflater().inflate(R.menu.chat_menu_activity, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -152,41 +170,11 @@ public class ChatActivity extends AppCompatActivity {
         int itemId = item.getItemId();
         switch (itemId) {
             case R.id.search_devices:
-                checkPermissions();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void checkPermissions() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
-        }
-        else{
-            Intent intent = new Intent(this, ListDevicesActivity.class);
-            selectDeviceLauncher.launch(intent);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(this, ListDevicesActivity.class);
-                startActivity(intent);
-            } else {
-                new AlertDialog.Builder(context)
-                        .setCancelable(false)
-                        .setMessage("Access to Location is necessary to use the app")
-                        .setPositiveButton("Access",  (dialogInterface, i) -> checkPermissions())
-                        .setNegativeButton("Deny", (dialogInterface, i) -> ChatActivity.this.finish()).show();
-            }
-        }
-        else{
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
 }

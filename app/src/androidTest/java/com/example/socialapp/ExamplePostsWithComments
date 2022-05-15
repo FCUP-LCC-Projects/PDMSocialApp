@@ -1,0 +1,5 @@
+PostItem comment = new PostItem("mbsion", "RightNow", "LAHDHFBILUBCABHASÇ");
+PostItem post1 = new PostItem("mbsion", "RN", "THIS IS THE POST");
+
+LinkedList<PostItem> comments = new LinkedList<>();
+comments.add(comment);

@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".SignInActivity">
 
+    <ProgressBar
+        android:id="@id/progress_devices_signin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+
     <EditText
         android:id="@+id/password"
         android:layout_width="wrap_content"
@@ -99,12 +107,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/log_in" />
 
-    <Button
-        android:id="@+id/debugSignInButton"
-        android:layout_width="82dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="16dp"
-        android:onClick="enterWithoutSignIn"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

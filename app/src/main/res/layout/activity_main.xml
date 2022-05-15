@@ -6,12 +6,15 @@
     android:layout_height="match_parent"
     tools:context=".ChatActivity">
 
+
     <ListView
         android:id="@id/bluetooth_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="70dp"
         android:background="#c0d0a0"
+        android:stackFromBottom="true"
+        android:transcriptMode="normal"
         >
 
 

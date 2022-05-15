@@ -7,6 +7,8 @@ class CommCodes {
 
     public static final int UPDATE_PROFILE = 1;
 
+    public static final int REQUEST_LOCATION_PERMISSION = 101;
+
     public static final int MESSAGE_STATE_CHANGED = 0;
     public static final int MESSAGE_TOAST = 1;
     public static final int MESSAGE_READ = 2;

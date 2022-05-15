@@ -28,4 +28,12 @@
     <item name="timeline_item_date" type="id" />
     <item name="post_fragment" type="id" />
     <item name="action_search" type="id" />
+    <item name="message_item_text" type="id" />
+    <item name="timeline_navigation_drawer" type="id" />
+    <item name="drawer_group" type="id" />
+    <item name="drawer_group_settings" type="id" />
+    <item name="drawer_username" type="id" />
+    <item name="progress_devices_signin" type="id" />
+    <item name="comments_listview" type="id" />
+    <item name="comments_post_user" type="id" />
 </resources>

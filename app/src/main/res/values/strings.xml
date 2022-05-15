@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SocialApp</string>
+    <string name="app_name">SocialApp PDM21/22</string>
     <string name="send_message">Send</string>
     <string name="search_devices_text">Search Devices</string>
     <string name="bluetooth_enabled_text">Bluetooth Enabled</string>
@@ -35,4 +35,9 @@
     with multiple lines to test if this works
     with long texts like this </string>
     <string name="search_for_posts">Search for New Posts</string>
+    <string name="logo">Logo</string>
+    <string name="open_drawer">Open drawer</string>
+    <string name="close_drawer">Close drawer</string>
+    <string name="scanning">Scanning for Devices...</string>
+    <string name="reply">Reply</string>
 </resources>

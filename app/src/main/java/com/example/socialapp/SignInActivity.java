@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.Button;
 import android.widget.TextView;
@@ -33,12 +34,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SignInActivity extends AppCompatActivity {
 
-    private EditText in_email, in_password; //recebe o texto escrito na barra de email e de password
-    private String email, password;         //o texto transformado das variaveis acima
-    private Button logIn;                   //botao de login
-    private TextView loggedIn, Info;        //texto em caso de ainda nao estar registado e informação sobre tentativas
-    private int counter = 3;                //contador de tentativas
-    private FirebaseAuth mAuth;             //cena de autenticação que liga à base de dados da Firebase
+    private EditText in_email, in_password;
+    private String email, password;
+    private Button logIn;
+    private TextView loggedIn, Info;
+    private int counter = 3;
+    private FirebaseAuth mAuth;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,12 @@ public class SignInActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        progressBar.setVisibility(View.GONE);
+    }
+
     private void setupUIViews(){ //isto basicamente liga só as variáveis de Objetos que estamos a criar aqui, com o seu código correspondente, as variaveis que estão no xml
         in_email = findViewById(R.id.username);
         in_password = (EditText) findViewById(R.id.password);
@@ -90,6 +98,7 @@ public class SignInActivity extends AppCompatActivity {
         loggedIn = (TextView) findViewById(R.id.not_registered_sign_up);
         mAuth = FirebaseAuth.getInstance();         // esta é a unica variavel que nao está no xml, em que vamos buscar uma "instancia" de base de dados à firebase
         Info = (TextView) findViewById(R.id.attempts);
+        progressBar = findViewById(R.id.progress_devices_signin);
     }
 
     private Boolean inputValidate(String username, String password){        //esta função praticamente garante que nenhuma das barrinhas de texto está vazia. se tiverem, diz pra meter toda a informação
@@ -119,6 +128,7 @@ public class SignInActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Boolean> task) {
                             Log.d("PROFILE", String.valueOf(task.getResult()));
+                            progressBar.setVisibility(View.VISIBLE);
                             if(task.getResult()) {
                                 Intent intent = new Intent(SignInActivity.this, TimeLineActivity.class);
 

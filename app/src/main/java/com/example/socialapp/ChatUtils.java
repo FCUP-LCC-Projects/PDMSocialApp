@@ -1,15 +1,19 @@
 package com.example.socialapp;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+
+import androidx.core.app.ActivityCompat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +41,8 @@ public class ChatUtils {
     public ChatUtils(Context context, Handler handler) {
         this.context = context;
         this.handler = handler;
+        this.state = STATE_NONE;
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
 
     public int getState() {
@@ -50,13 +56,19 @@ public class ChatUtils {
 
     public void connect(BluetoothDevice device) {
         if (state == STATE_CONNECTING) {
-            commThread.cancel();
-            commThread = null;
+            if (commThread != null) {
+                commThread.cancel();
+                commThread = null;
+            }
+        }
+
+        if (exchangeThread != null) {
+            exchangeThread.cancel();
+            exchangeThread = null;
         }
 
         commThread = new CommunicateThread(device);
         commThread.start();
-
         setState(STATE_CONNECTING);
     }
 
@@ -67,11 +79,11 @@ public class ChatUtils {
         }
 
         if (ackThread != null) {
-            ackThread.cancel();
-            ackThread = null;
+            ackThread = new AckThread();
+            ackThread.start();
         }
 
-        if(exchangeThread != null){
+        if (exchangeThread != null) {
             exchangeThread.cancel();
             exchangeThread = null;
         }
@@ -90,7 +102,7 @@ public class ChatUtils {
             ackThread = null;
         }
 
-        if(exchangeThread != null){
+        if (exchangeThread != null) {
             exchangeThread.cancel();
             exchangeThread = null;
         }
@@ -101,26 +113,28 @@ public class ChatUtils {
     public void write(byte[] buffer) {
         ExchangeThread exThread;
         synchronized (this) {
-            if (state != STATE_CONNECTED) {
-                return;
-            }
-
-            exThread = exchangeThread ;
+            if (state != STATE_CONNECTED) return;
+            exThread = exchangeThread;
         }
 
         exThread.write(buffer);
     }
 
-    @SuppressLint("MissingPermission")
+
     private synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
         if (commThread != null) {
             commThread.cancel();
             commThread = null;
         }
 
-        if(exchangeThread != null){
+        if (exchangeThread != null) {
             exchangeThread.cancel();
             exchangeThread = null;
+        }
+
+        if (ackThread != null) {
+            ackThread.cancel();
+            ackThread = null;
         }
 
         exchangeThread = new ExchangeThread(socket);
@@ -149,7 +163,6 @@ public class ChatUtils {
         private final BluetoothSocket socket;
         private final BluetoothDevice device;
 
-        @SuppressLint("MissingPermission")
         public CommunicateThread(BluetoothDevice device) {
             this.device = device;
 
@@ -158,13 +171,19 @@ public class ChatUtils {
                 tempSocket = device.createRfcommSocketToServiceRecord(APP_UUID);
             } catch (IOException e) {
                 Log.e("CommThread.Constructor", e.toString());
+            } catch(SecurityException se) {
+                Log.e("CommThread.Sec", se.toString());
             }
 
             socket = tempSocket;
+            setState(STATE_CONNECTING);
         }
 
-        @SuppressLint("MissingPermission")
+
         public void run() {
+            Log.d("CommThread", "running");
+            bluetoothAdapter.cancelDiscovery();
+
             try {
                 socket.connect();
             } catch (IOException e) {
@@ -174,13 +193,15 @@ public class ChatUtils {
                 } catch (IOException e2) {
                     Log.e("CommThread.close", e2.toString());
                 }
-            }
+                connectionFailed();
+                return;
+            }catch(SecurityException e3){}
 
             synchronized (ChatUtils.this) {
-                commThread = this;
+                commThread = null;
             }
 
-            connect(device);
+            connected(socket, device);
         }
 
         public void cancel() {
@@ -195,33 +216,47 @@ public class ChatUtils {
     private class AckThread extends Thread{
         private BluetoothServerSocket serverSocket;
 
-        @SuppressLint("MissingPermission")
+
         public AckThread(){
             BluetoothServerSocket tempServerSocket = null;
             try{
                 tempServerSocket = bluetoothAdapter.listenUsingRfcommWithServiceRecord(CommCodes.APP_NAME,APP_UUID);
             }catch(IOException e) {
                 Log.e("AckThread.constructor", e.toString());
-            }
+            }catch (SecurityException e2){}
             serverSocket = tempServerSocket;
+            setState(STATE_LISTEN);
         }
 
-        public void run(){
+        public void run() {
+            Log.d("AckThread", "running");
             BluetoothSocket socket = null;
-            try{
-                socket = serverSocket.accept();
-            }catch(IOException e) {
-                Log.e("AckThread.run", e.toString());
+
+            while (state != STATE_CONNECTED) {
+                try {
+                    socket = serverSocket.accept();
+                } catch (IOException e) {
+                    Log.e("AckThread.run", e.toString());
+                    break;
+                }
             }
 
-            if(socket!=null){
-                switch(state){
-                    case STATE_CONNECTING: connect(socket.getRemoteDevice()); break;
-                    case STATE_CONNECTED:
-                    case STATE_NONE:
-                        try {
-                            socket.close();
-                        }catch(IOException e){ Log.e("AckThread.run", e.toString());} break;
+            if (socket != null) {
+                synchronized (ChatUtils.this) {
+                    switch (state) {
+                        case STATE_LISTEN:
+                        case STATE_CONNECTING:
+                            connected(socket, socket.getRemoteDevice());
+                            break;
+                        case STATE_CONNECTED:
+                        case STATE_NONE:
+                            try {
+                                socket.close();
+                            } catch (IOException e) {
+                                Log.e("AckThread.run", e.toString());
+                            }
+                            break;
+                    }
                 }
             }
         }
@@ -254,17 +289,22 @@ public class ChatUtils {
             }
             this.inputStream = tmpInStream;
             this.outputStream = tmpOutStream;
+            setState(STATE_CONNECTED);
         }
 
         public void run() {
+            Log.d("ExchangeThread", "running");
             byte[] buffer = new byte[BUFFER_LENGTH];
             int bytes;
 
-            try {
-                bytes = inputStream.read(buffer);
-                handler.obtainMessage(CommCodes.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
-            } catch (IOException e) {
-                lostConnection();
+            while (state == STATE_CONNECTED) {
+                try {
+                    bytes = inputStream.read(buffer);
+                    handler.obtainMessage(CommCodes.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                } catch (IOException e) {
+                    lostConnection();
+                    break;
+                }
             }
         }
 
@@ -292,5 +332,8 @@ public class ChatUtils {
         bundle.putString(CommCodes.TOAST_MESSAGE, "Connection Lost");
         message.setData(bundle);
         handler.sendMessage(message);
+
+        setState(STATE_NONE);
+        ChatUtils.this.start();
     }
 }
