@@ -24,6 +24,6 @@
         android:textSize="30dp"
         android:textStyle="bold"
         android:textColor="#051161"
-        android:text="Username">
+        >
     </TextView>
 </LinearLayout>

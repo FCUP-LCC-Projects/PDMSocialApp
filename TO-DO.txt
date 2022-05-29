@@ -1,0 +1,4 @@
+different night/light theme settings, change colors
+adjust post fragment appearance
+do bluetooth chat and search for bluetooth posts (change to wifi direct???)
+finish IO storage, possibly communicate with database

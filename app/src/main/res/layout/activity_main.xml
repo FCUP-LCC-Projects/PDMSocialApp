@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ChatActivity">
+    >
 
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@id/bluetooth_listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,8 +17,7 @@
         android:transcriptMode="normal"
         >
 
-
-    </ListView>
+    </androidx.recyclerview.widget.RecyclerView>
 
     <RelativeLayout
         android:layout_width="match_parent"

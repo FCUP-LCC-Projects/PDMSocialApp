@@ -42,16 +42,16 @@ public class CommentFragment extends DialogFragment {
 
     onCommentPostedListener commentPostedListener;
 
+    public static CommentFragment newInstance() {
+        return new CommentFragment();
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Activity activity = getActivity();
-        try{
+        if(context instanceof onCommentPostedListener)
             commentPostedListener = (onCommentPostedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnPostCreatedListener");
-        }
     }
 
 
@@ -89,24 +89,18 @@ public class CommentFragment extends DialogFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         postComment = getView().findViewById(R.id.comments_send);
-        postComment.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String commentText = editText.getText().toString();
-                editText.setText("");
-                if (commentText != null) {
-                    Calendar calendar = Calendar.getInstance();
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                    Date date = new Date();
-                    String time = dateFormat.format(date);
-                    PostItem postItem = new PostItem(currentUsername, time, commentText);
+        postComment.setOnClickListener(view1 -> {
+            String commentText = editText.getText().toString();
+            editText.setText("");
+            if (commentText != null) {
+                Calendar calendar = Calendar.getInstance();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                String time = dateFormat.format(date);
+                PostItem postItem = new PostItem(currentUsername, time, commentText);
 
-                    commentViewAdapter.getPostList().push(postItem);
-                    if(commentViewAdapter.getItemCount() == 2)
-                        commentViewAdapter.getPostList().remove(); // removes empty comment
-                    commentViewAdapter.notifyItemInserted(0);
-
-                }
+                commentViewAdapter.getPostList().push(postItem);
+                commentViewAdapter.notifyDataSetChanged();
             }
         });
     }

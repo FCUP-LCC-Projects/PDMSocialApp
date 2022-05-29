@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".TimeLineActivity"
     android:id="@+id/drawer_layout"
-    tools:openDrawer="start"
+
     >
 
     <LinearLayout
@@ -32,6 +32,11 @@
             android:background="#0190D1"
              />
     </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/timeline_fragment_container"/>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@id/timeline_navigation_drawer"

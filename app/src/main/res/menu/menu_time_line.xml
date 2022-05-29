@@ -48,9 +48,15 @@
             android:title = "@string/profile"
             app:showAsAction = "never"
             />
-
         <item
             android:orderInCategory="100"
+            android:id = "@+id/settings_password"
+            android:title = "@string/change_pass_option"
+            app:showAsAction = "never"
+            />
+
+        <item
+            android:orderInCategory="101"
             android:id = "@id/settings_logout"
             android:title = "@string/logout"
             app:showAsAction="never"

@@ -4,9 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@id/post_fragment">
+    android:id="@id/post_fragment"
+    android:background="@color/light_transparent_black"
+    >
 
     <LinearLayout
+        android:gravity="center"
         android:layout_width="362dp"
         android:layout_height="192dp"
         android:orientation="vertical"
@@ -14,25 +17,37 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/transparent_white">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Share what you're thinking!"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black"/>
 
         <EditText
             android:id="@+id/fragment_post_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:layout_marginTop="10dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:layout_marginTop="40sp">
+            android:layout_marginTop="30sp">
 
             <Button
                 android:id="@id/fragment_post_back"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
                 android:text="@string/back" />
 
             <View
@@ -44,6 +59,7 @@
                 android:id="@id/fragment_post_send"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="40dp"
                 android:text="@string/send_message" />
         </LinearLayout>
 

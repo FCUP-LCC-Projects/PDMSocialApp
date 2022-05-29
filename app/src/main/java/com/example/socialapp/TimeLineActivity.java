@@ -2,11 +2,13 @@ package com.example.socialapp;
 
 import static com.example.socialapp.R.string.main_page;
 
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -15,47 +17,34 @@ import com.google.android.gms.tasks.Task;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.socialapp.databinding.ActivityTimeLineBinding;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Comment;
-import org.w3c.dom.Text;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.LinkedList;
 
 
 public class TimeLineActivity extends AppCompatActivity implements PostFragment.OnPostCreatedListener, NavigationView.OnNavigationItemSelectedListener, CommentFragment.onCommentPostedListener {
     private Context context;
-    private ActivityTimeLineBinding binding;
     private RecyclerView timeLine;
     private PostViewAdapter postViewAdapter;
     private FirebaseAuth mAuth;
@@ -63,6 +52,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
     private Toolbar toolbar;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +63,19 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
         setSupportActionBar(toolbar);
         toolbar.setTitle(main_page);
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean nightMode = sharedPreferences.getBoolean("mode", false);
+        if (nightMode)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
+            else
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
+        
+        currentUsername = sharedPreferences.getString("username", "user");
+        Log.d("Username", "Current username is: "+currentUsername);
         init();
 
     }
@@ -80,15 +83,22 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
     @Override
     protected void onStart() {
         super.onStart();
-        ListDevicesActivity.getUsername().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                currentUsername = task.getResult();
-            }
-        });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IOUtils.writeFiletToIStorage(this, postViewAdapter.getPostList());
+        Log.d("IO", "Call to write files to storage");
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        IOUtils.writeFiletToIStorage(this, postViewAdapter.getPostList());
+    }
+
+    @SuppressLint("NewApi")
     private void init(){
         drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
@@ -97,15 +107,18 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
         toggle.syncState();
 
 
-        navigationView = (NavigationView) findViewById(R.id.timeline_navigation_drawer);
+        navigationView = findViewById(R.id.timeline_navigation_drawer);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
+        View headerView = navigationView.getHeaderView(0);
         try{
-            TextView usernameInView = findViewById(R.id.drawer_username);
+            TextView usernameInView = (TextView) headerView.findViewById(R.id.drawer_username);
             usernameInView.setText(currentUsername);
         }catch(Exception e){}
 
-        postViewAdapter = new PostViewAdapter(this, new LinkedList<PostItem>());
+        LinkedList<PostItem> postList = IOUtils.readFileFromIStorage(this);
+        if(postList == null) postList = new LinkedList<>();
+        postViewAdapter = new PostViewAdapter(this, postList);
 
         timeLine = findViewById(R.id.timeline_view);
         timeLine.setAdapter(postViewAdapter);
@@ -124,10 +137,23 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
                     drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
             case R.id.settings_manage:
+                    getSupportFragmentManager().beginTransaction().setReorderingAllowed(true)
+                            .add(R.id.timeline_fragment_container,
+                                    SettingsFragment.newInstance(), "Settings")
+                            .addToBackStack("Settings")
+                            .commit();
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                    return true;
+            case R.id.settings_password:
+                    getSupportFragmentManager().beginTransaction().setReorderingAllowed(true)
+                            .add(R.id.timeline_fragment_container,
+                                    PasswordFragment.newInstance(), "Password")
+                            .addToBackStack("Password")
+                            .commit();
+                    drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
             case R.id.settings_logout:
                     mAuth.signOut();
-                    finish();
                     startActivity(new Intent(TimeLineActivity.this, SignInActivity.class));
                     return true;
             case R.id.action_post:
@@ -174,7 +200,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
 
     private void checkPermissions() {
 
-            Intent intent = new Intent(this, ListDevicesActivity.class);
+            Intent intent = new Intent(this, BluetoothChatActivity.class);
             startActivity(intent);
 
     }
@@ -182,7 +208,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
     private void createPostFragment(){
         Bundle bundle = new Bundle();
         bundle.putString("username", currentUsername);
-        PostFragment postFragment = new PostFragment();
+        PostFragment postFragment = PostFragment.newInstance();
         postFragment.setArguments(bundle);
         postFragment.show(getSupportFragmentManager(), "CreatePost");
 
@@ -190,8 +216,6 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
 
     @Override
     public void onPostCreated(PostItem postItem) {
-        PostFragment postFragment = (PostFragment) getSupportFragmentManager().findFragmentById(R.id.post_fragment);
-
         postViewAdapter.getPostList().push(postItem);
         postViewAdapter.notifyItemInserted(0);
    }
@@ -228,8 +252,8 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
     }
 
     public class PostViewAdapter extends RecyclerView.Adapter<PostViewHolder> {
-        private LinkedList<PostItem> postList;
-        private LayoutInflater layoutInflater;
+        private final LinkedList<PostItem> postList;
+        private final LayoutInflater layoutInflater;
 
         public PostViewAdapter(Context context, LinkedList<PostItem> postList) {
             this.postList = postList;
@@ -252,20 +276,17 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
             holder.postDate.setText(current.getDate());
             holder.postText.setText(current.getContents());
 
-            holder.replyButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("username", currentUsername);
-                    bundle.putSerializable("post", current);
+            holder.replyButton.setOnClickListener(view -> {
+                Bundle bundle = new Bundle();
+                bundle.putString("username", currentUsername);
+                bundle.putSerializable("post", current);
 
-                    CommentFragment commentFragment = new CommentFragment();
-                    commentFragment.setArguments(bundle);
-                    getSupportFragmentManager().beginTransaction()
-                            .setReorderingAllowed(true)
-                            .add(commentFragment, "ShowPost")
-                            .commit();
-                }
+                CommentFragment commentFragment = CommentFragment.newInstance();
+                commentFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .add(commentFragment, "ShowPost")
+                        .commit();
             });
         }
 
@@ -278,4 +299,6 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
             return postList;
         }
     }
+
 }
+

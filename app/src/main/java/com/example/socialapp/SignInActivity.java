@@ -2,9 +2,13 @@ package com.example.socialapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.preference.PreferenceManager;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -51,19 +55,28 @@ public class SignInActivity extends AppCompatActivity {
 
         Info.setText("No of attempts remaining: 3");    // Mete o texto como 3 tentativas iniciais de Login
 
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean nightMode = sharedPreferences.getBoolean("mode", false);
+        if (nightMode)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        else {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P)
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
+            else
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        }
 
-        logIn.setOnClickListener(new View.OnClickListener() {    /* este textão, tudo é implementado automaticamente, praticamente adiciona uma opção de ação quando clicas no butão de login */
+        logIn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {       // ao clicares ação abaixo
-                email = in_email.getText().toString().trim();   //quando clicas mete o texto que estava na barrinha de escrita de email na String email
-                password = in_password.getText().toString().trim(); //texto na barrinha de escrita password na String password
-                if(inputValidate(email, password))          //passa pela função inputValidate que está abaixo aqui no código
-                    loginValidate(email, password);         //e se inputValidate for verdade, passa pelo loginValidate e avança com a vida
-
+            public void onClick(View v) {
+                email = in_email.getText().toString().trim();
+                password = in_password.getText().toString().trim();
+                if(inputValidate(email, password))
+                    loginValidate(email, password);
             }
         });
 
-        loggedIn.setOnClickListener(new View.OnClickListener() {    // caso ainda não teja o utilizador registado então passa para a atividade onde se pode registar
+        loggedIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SignInActivity.this, RegistrationActivity.class);
@@ -167,6 +180,8 @@ public class SignInActivity extends AppCompatActivity {
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference myRef = firebaseDatabase.getReference(mAuth.getUid());
         final TaskCompletionSource<Boolean> taskCompletionSource = new TaskCompletionSource<>();
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("myPref",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -174,6 +189,8 @@ public class SignInActivity extends AppCompatActivity {
                 UserProfile userProfile = snapshot.getValue(UserProfile.class);
                 System.out.println(userProfile.getUsername());
                 System.out.println(userProfile.getProfileCreated());
+                editor.putString("username", userProfile.getUsername());
+                editor.apply();
                 taskCompletionSource.setResult(userProfile.profileCreated);
             }
 

@@ -8,10 +8,5 @@
     android:title="@string/scan_devices"
     app:showAsAction="always"/>
 
-    <item
-        android:orderInCategory="98"
-        android:id="@id/bluetooth_enabled"
-        android:icon="@drawable/ic_bluetooth_connected"
-        android:title="@string/bluetooth_enabled_text"
-        app:showAsAction="always" />
+
 </menu>

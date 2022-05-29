@@ -2,13 +2,16 @@ package com.example.socialapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -39,6 +42,7 @@ public class ListDevicesActivity extends AppCompatActivity {
     private Context context;
     private ProgressBar progressScan;
     private BluetoothAdapter bluetoothAdapter;
+    private SharedPreferences sharedPreferences;
 
 
     private final BroadcastReceiver deviceListener = new BroadcastReceiver() {
@@ -73,6 +77,7 @@ public class ListDevicesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_list_devices);
         context = this;
 
+        setResult(Activity.RESULT_CANCELED);
         initDevices();
     }
 
@@ -93,6 +98,7 @@ public class ListDevicesActivity extends AppCompatActivity {
 
 
     private void initDevices(){
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         listAvalDevices = findViewById(R.id.list_aval_devices);
         listPairedDevices = findViewById(R.id.list_paired_devices);
 
@@ -107,13 +113,9 @@ public class ListDevicesActivity extends AppCompatActivity {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
-        getUsername().addOnCompleteListener(new OnCompleteListener<String>() {
-            @Override
-            public void onComplete(@NonNull Task<String> task) {
-                try{ bluetoothAdapter.setName(task.getResult()); }
-                catch(SecurityException e){ Log.e("SetNameSec", e.toString());}
-            }
-        });
+        try{
+            bluetoothAdapter.setName(sharedPreferences.getString("username", "user"));
+        }catch(SecurityException e){ Log.e("SetNameSec", e.toString());}
 
         Set<BluetoothDevice> pairedDevices = null;
         try {
@@ -160,7 +162,7 @@ public class ListDevicesActivity extends AppCompatActivity {
         String info = ((TextView) view).getText().toString();
         String address = info.substring(info.length() - 17);
 
-        Intent intent = new Intent(ListDevicesActivity.this, ChatActivity.class);
+        Intent intent = new Intent(ListDevicesActivity.this, BluetoothChatActivity.class);
         intent.putExtra("address", address);
         setResult(RESULT_OK, intent);
         startActivity(intent);
@@ -178,24 +180,11 @@ public class ListDevicesActivity extends AppCompatActivity {
             case R.id.menu_scan_devices:
                 scanDevices();
                 return true;
-            case R.id.bluetooth_enabled:
-                enableBluetooth();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-
-    private void enableBluetooth() {
-        try {
-            if (!bluetoothAdapter.isEnabled()) {
-                bluetoothAdapter.enable();
-            }
-        } catch (SecurityException e) {
-            Log.e("EnableBluetooth", e.toString());
-        }
-    }
 
     private void scanDevices() {
         progressScan.setVisibility(View.VISIBLE);
@@ -213,26 +202,4 @@ public class ListDevicesActivity extends AppCompatActivity {
         }
     }
 
-    protected static Task<String> getUsername(){
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        DatabaseReference databaseReference = firebaseDatabase.getReference(firebaseAuth.getUid());
-        final TaskCompletionSource<String> taskCompletionSource = new TaskCompletionSource<>();
-
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                UserProfile userProfile = snapshot.getValue(UserProfile.class);
-                taskCompletionSource.setResult(userProfile.getUsername());
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                System.out.println("The read failed: " + error.getCode());
-                taskCompletionSource.setException(error.toException());
-            }
-        });
-
-        return taskCompletionSource.getTask();
-    }
 }

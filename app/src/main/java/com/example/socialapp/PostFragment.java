@@ -31,16 +31,17 @@ public class PostFragment extends DialogFragment {
 
     OnPostCreatedListener postCreatedListener;
 
+    public static PostFragment newInstance(){
+        return new PostFragment();
+    }
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         Activity activity = getActivity();
-        try{
+        if(context instanceof OnPostCreatedListener)
             postCreatedListener = (OnPostCreatedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnPostCreatedListener");
-        }
+
     }
 
 
