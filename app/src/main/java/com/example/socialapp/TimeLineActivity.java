@@ -210,7 +210,10 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
         bundle.putString("username", currentUsername);
         PostFragment postFragment = PostFragment.newInstance();
         postFragment.setArguments(bundle);
-        postFragment.show(getSupportFragmentManager(), "CreatePost");
+        getSupportFragmentManager().beginTransaction()
+                .setReorderingAllowed(true)
+                .add(postFragment, "CreatePost")
+                .commit();
 
     }
 

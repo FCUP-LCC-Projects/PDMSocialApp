@@ -19,18 +19,18 @@ import java.util.LinkedList;
 
 public class IOUtils {
 
+    /***************************** IO POSTS ***********************************/
+
     public static void writeFiletToIStorage(Context context, LinkedList<PostItem> postList){
         File dir = new File(context.getFilesDir(), "data-logs");
         if(!dir.exists())
             dir.mkdir();
         System.out.println(dir.getPath());
-
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+        String filename = simpleDateFormat.format(new Date());
+        File logFile = new File(dir, filename);
         try{
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
-            String filename = simpleDateFormat.format(new Date());
-            File logFile = new File(dir, filename);
             FileWriter fileWriter = new FileWriter(logFile);
-
             fileWriter.append(writePostToArray(postList, fileWriter).toJSONString());
             fileWriter.flush();
             fileWriter.close();
@@ -81,7 +81,11 @@ public class IOUtils {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
         String filename = simpleDateFormat.format(new Date());
         File file = new File(dir, filename);
-        if(!file.exists()) return null;
+        if(!file.exists()){
+            if(dir.list()[0] != null)
+                file = new File(dir, dir.list()[0]);
+            else return null;
+        }
 
         JSONParser jsonParser = new JSONParser();
         LinkedList<PostItem> posts = new LinkedList<>();
@@ -132,4 +136,83 @@ public class IOUtils {
         }
         return comments;
     }
+
+    /****************************** IO CHAT ************************************/
+
+    public static void writeFileToIStorage(Context context, LinkedList<MessageItem> messageList){
+        File dir = new File(context.getFilesDir(), "chat-logs");
+        if(!dir.exists())
+            dir.mkdir();
+        System.out.println(dir.getPath());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+        String filename = simpleDateFormat.format(new Date());
+        File logFile = new File(dir, filename);
+        try{
+            FileWriter fileWriter = new FileWriter(logFile);
+            fileWriter.append(writeMessageToArray(messageList, fileWriter).toJSONString());
+            fileWriter.flush();
+            fileWriter.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private static JSONArray writeMessageToArray(LinkedList<MessageItem> messageItems, FileWriter fileWriter){
+        JSONArray newMessages = new JSONArray();
+        for(MessageItem m : messageItems){
+            newMessages.add(writeMessageToJSON(m));
+        }
+        return newMessages;
+    }
+
+    private static JSONObject writeMessageToJSON(MessageItem message){
+        JSONObject newMessage = new JSONObject();
+        try{
+            newMessage.put("username", message.getUsername());
+            newMessage.put("message", message.getMessage());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return newMessage;
+    }
+
+    public static LinkedList<MessageItem> readChatFromIStorage(Context context){
+        File dir = new File(context.getFilesDir(), "chat-logs");
+        if(!dir.exists()) return null;
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+        String filename = simpleDateFormat.format(new Date());
+        File file = new File(dir, filename);
+        if(!file.exists()){
+            if(dir.list()[0] != null)
+                file = new File(dir, dir.list()[0]);
+            else return null;
+        }
+
+        JSONParser jsonParser = new JSONParser();
+        LinkedList<MessageItem> messages = new LinkedList<>();
+
+        try(FileReader fileReader = new FileReader(file)){
+            JSONArray chatArray = (JSONArray) jsonParser.parse(fileReader);
+            Iterator iterator = chatArray.iterator();
+            while (iterator.hasNext()){
+                JSONObject chatJSON = (JSONObject) iterator.next();
+                messages.add(parseChatFromJSON(chatJSON));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return messages;
+    }
+
+    private static MessageItem parseChatFromJSON(JSONObject jsonObject){
+        String username, message;
+
+        username = (String) jsonObject.get("username");
+        message = (String) jsonObject.get("message");
+
+        MessageItem recoveredMessage = new MessageItem(username, message);
+        return recoveredMessage;
+    }
+
 }

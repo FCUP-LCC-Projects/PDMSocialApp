@@ -19,6 +19,7 @@ import androidx.preference.SwitchPreferenceCompat;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
     private static final String KEY_PREF_MODE = "mode";
+    private SharedPreferences pref;
 
     public static SettingsFragment newInstance() { return new SettingsFragment(); }
 
@@ -27,7 +28,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
         final SwitchPreferenceCompat modeToggle = (SwitchPreferenceCompat) findPreference("mode");
 
-        SharedPreferences pref = getActivity().getApplicationContext().getSharedPreferences("myPref",MODE_PRIVATE);
+        pref = getActivity().getApplicationContext().getSharedPreferences("myPref",MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
 
         modeToggle.setChecked(pref.getBoolean("mode", false));
@@ -56,7 +57,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        view.setBackgroundColor(getResources().getColor(R.color.black));
+        if(pref.getBoolean("mode", false))
+            view.setBackgroundColor(getResources().getColor(R.color.black));
+        else
+            view.setBackgroundColor(getResources().getColor(R.color.white));
+
         return view;
     }
 }

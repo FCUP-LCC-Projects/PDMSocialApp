@@ -17,6 +17,7 @@
         android:orientation="horizontal">
 
         <TextView
+            android:theme="@style/PostItem.Color"
             android:id="@id/timeline_item_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,7 +30,9 @@
             android:layout_weight="1" />
 
         <TextView
+            android:theme="@style/PostItem.Color"
             android:id="@id/timeline_item_date"
+            android:textStyle="italic"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
@@ -37,6 +40,7 @@
     </LinearLayout>
 
     <TextView
+        android:theme="@style/PostItem.Color"
         android:id="@id/timeline_item_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

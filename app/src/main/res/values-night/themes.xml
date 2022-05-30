@@ -14,7 +14,28 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="Button.Password" parent="ThemeOverlay.AppCompat">
-        <item name="colorAccent">@color/transparent_white</item>
+    <style name="Timeline" parent="ThemeOverlay.MaterialComponents.Light">
+        <item name="android:background">@color/timeline_background_night</item>
+    </style>
+
+    <style name="Settings.Color" parent="ThemeOverlay.MaterialComponents.Dark">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="PostItem.Color" parent="ThemeOverlay.MaterialComponents.Dark">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="Header.Username" parent="ThemeOverlay.MaterialComponents.Dark">
+        <item name="android:textSize">30dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/header_color_night</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="Button.Password" parent="ThemeOverlay.MaterialComponents.Dark">
+        <item name="android:colorAccent">@color/transparent_white</item>
+        <item name="android:textColor">@color/transparent_black</item>
+        <item name="android:textStyle">bold</item>
     </style>
 </resources>

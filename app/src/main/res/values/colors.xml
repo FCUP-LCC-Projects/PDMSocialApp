@@ -11,4 +11,8 @@
     <color name="transparent_black">#DF170101</color>
     <color name="light_transparent_black">#9E000000</color>
     <color name="transparent_white">#D5FFFFFF</color>
+    <color name="timeline_background">#0190D1</color>
+    <color name="timeline_background_night">#002D42</color>
+    <color name="header_color">#D5071678</color>
+    <color name="header_color_night">#D57E8CE3</color>
 </resources>
