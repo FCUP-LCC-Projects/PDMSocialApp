@@ -25,6 +25,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -70,7 +74,7 @@ public class BluetoothChatActivity extends AppCompatActivity {
         }
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+            requestEnableBTLauncher.launch(enableIntent);
         } else if (chatUtils == null) {
             setupChat();
         }
@@ -221,23 +225,33 @@ public class BluetoothChatActivity extends AppCompatActivity {
         }
     });
 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQUEST_CONNECT_DEVICE_SECURE:
-                if (resultCode == Activity.RESULT_OK) {
-                    connectDevice(data);
+    ActivityResultLauncher<Intent> connectDeviceSecureLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        Intent data = result.getData();
+                        connectDevice(data);
+                    }
                 }
-                break;
-            case REQUEST_ENABLE_BT:
-                if (resultCode == Activity.RESULT_OK) {
-                    setupChat();
-                } else {
-                    Toast.makeText(this, R.string.bluetooth_unenabled_text,
-                            Toast.LENGTH_SHORT).show();
+            });
+
+    ActivityResultLauncher<Intent> requestEnableBTLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        setupChat();
+                    }
+                    else {
+                        Toast.makeText(BluetoothChatActivity.this, R.string.bluetooth_unenabled_text,
+                                Toast.LENGTH_SHORT).show();
+                    }
                 }
-        }
-    }
+            });
 
     private void connectDevice(Intent data) {
 
@@ -260,7 +274,7 @@ public class BluetoothChatActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.search_devices) {// iniciar devicelist e scanear por disps pairados
-            startActivityForResult(new Intent(this, ListDevicesActivity.class), REQUEST_CONNECT_DEVICE_SECURE);
+            connectDeviceSecureLauncher.launch(new Intent(this, ListDevicesActivity.class));
             return true;
         } else if (itemId == R.id.bluetooth_enabled) {// ver se o dispositivo pode ser descoberto
             ensureDiscoverable();
