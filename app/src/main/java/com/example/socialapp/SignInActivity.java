@@ -66,6 +66,11 @@ public class SignInActivity extends AppCompatActivity {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
 
+        if(savedInstanceState != null){
+            in_email.setText(savedInstanceState.getString("email"));
+            in_password.setText(savedInstanceState.getString("password"));
+        }
+
         logIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,6 +101,17 @@ public class SignInActivity extends AppCompatActivity {
         }
 
         super.onResume();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        email = in_email.getText().toString().trim();
+        password = in_password.getText().toString().trim();
+        if(!email.isEmpty())
+            outState.putString("email", email);
+        if(!password.isEmpty())
+            outState.putString("password", password);
     }
 
     @Override
@@ -189,8 +205,8 @@ public class SignInActivity extends AppCompatActivity {
                 UserProfile userProfile = snapshot.getValue(UserProfile.class);
                 System.out.println(userProfile.getUsername());
                 System.out.println(userProfile.getProfileCreated());
-                editor.putString("username", userProfile.getUsername());
-                editor.apply();
+                editor.putString("name", userProfile.getUsername());
+                editor.commit();
                 taskCompletionSource.setResult(userProfile.profileCreated);
             }
 

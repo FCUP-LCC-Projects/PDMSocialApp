@@ -19,6 +19,14 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="Message"
+        android:textSize="40dp"
+        android:id="@+id/readMsg"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -41,5 +49,9 @@
 
     </RelativeLayout>
 
+    <androidx.fragment.app.FragmentContainerView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/list_devices_container"/>
 
 </RelativeLayout>

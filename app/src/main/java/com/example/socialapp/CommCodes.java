@@ -9,9 +9,7 @@ class CommCodes {
 
     public static final int REQUEST_LOCATION_PERMISSION = 101;
 
-    public static final int MESSAGE_STATE_CHANGED = 0;
-    public static final int MESSAGE_TOAST = 1;
-    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_READ = 1;
     public static final int MESSAGE_DEVICE_NAME = 3;
-    public static final int MESSAGE_WRITE = 4;
+    public static final int MESSAGE_WRITE = 2;
 }

@@ -2,6 +2,7 @@ package com.example.socialapp;
 
 import static com.example.socialapp.R.string.main_page;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -19,6 +20,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.preference.PreferenceManager;
@@ -63,7 +66,8 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
         setSupportActionBar(toolbar);
         toolbar.setTitle(main_page);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences = getSharedPreferences("myPref", MODE_PRIVATE);
+
         boolean nightMode = sharedPreferences.getBoolean("mode", false);
         if (nightMode)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
@@ -74,7 +78,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
         
-        currentUsername = sharedPreferences.getString("username", "user");
+        currentUsername = sharedPreferences.getString("name", "");
         Log.d("Username", "Current username is: "+currentUsername);
         init();
 
@@ -183,7 +187,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
 
         if (requestCode == CommCodes.REQUEST_LOCATION_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(this, ListDevicesActivity.class);
+                Intent intent = new Intent(this, ChatActivity.class);
                 startActivity(intent);
             } else {
                 new AlertDialog.Builder(context)
@@ -199,10 +203,12 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
     }
 
     private void checkPermissions() {
-
-            Intent intent = new Intent(this, BluetoothChatActivity.class);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(TimeLineActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CommCodes.REQUEST_LOCATION_PERMISSION);
+        } else {
+            Intent intent = new Intent(this, ChatActivity.class);
             startActivity(intent);
-
+        }
     }
 
     private void createPostFragment(){

@@ -1,4 +1,5 @@
-different night/light theme settings, change colors
+different night/light theme settings
+adjust password fragment appearance
 adjust post fragment appearance
-do bluetooth chat and search for bluetooth posts (change to wifi direct???)
-finish IO storage, possibly communicate with database
+adjust root_preferences fragment appearance
+make sure the comments dont crash the thing

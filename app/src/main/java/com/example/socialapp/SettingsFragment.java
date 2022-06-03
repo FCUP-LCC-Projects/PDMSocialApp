@@ -57,8 +57,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        if(pref.getBoolean("mode", false))
+        if(pref.getBoolean("mode", false)) {
             view.setBackgroundColor(getResources().getColor(R.color.black));
+
+        }
         else
             view.setBackgroundColor(getResources().getColor(R.color.white));
 

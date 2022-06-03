@@ -10,7 +10,6 @@
     <PreferenceCategory app:title="@string/style_header">
 
         <SwitchPreferenceCompat
-            android:layout="@layout/settings_textview"
             app:key="mode"
             app:summary="@string/mode_summary"
             app:title="@string/style_mode" />

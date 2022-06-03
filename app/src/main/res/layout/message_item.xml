@@ -5,6 +5,8 @@
     android:id="@+id/message_item_container"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
+    android:background="@color/transparent_white"
+    android:elevation="10sp"
     android:layout_margin="10dp">
 
     <LinearLayout
@@ -17,6 +19,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/message_item_user"
+            android:textSize="20dp"
+            android:theme="@style/Header.Username"
             android:text="User"/>
 
         <View
@@ -29,10 +33,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/message_item_text"
+        android:theme="@style/PostItem.Color"
         android:layout_margin="10dp"/>
     <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginLeft="130dp"
         android:id="@+id/message_item_image"
         />

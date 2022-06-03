@@ -33,6 +33,7 @@ public class CommentFragment extends DialogFragment {
     private CommentViewAdapter commentViewAdapter;
     private RecyclerView recyclerView;
     private String currentUsername;
+    private Boolean emptyList;
 
 
     public interface onCommentPostedListener{
@@ -73,6 +74,7 @@ public class CommentFragment extends DialogFragment {
         date = getView().findViewById(R.id.comments_post_date);
         textpost = getView().findViewById(R.id.comments_post_text);
 
+
         Log.d("Username from Post", originalPost.getUsername());
 
         username.setText(originalPost.getUsername());
@@ -80,8 +82,10 @@ public class CommentFragment extends DialogFragment {
         textpost.setText(originalPost.getContents());
 
         commentList = originalPost.getComments();
-        if(commentList.isEmpty())
+        if(commentList.isEmpty()) {
             commentList.add(new PostItem("", "", "")); //makes sure view actually works
+            emptyList = true;
+        }
         commentViewAdapter = new CommentViewAdapter(getActivity(), commentList);
 
         recyclerView = getView().findViewById(R.id.comments_listview);
@@ -100,6 +104,10 @@ public class CommentFragment extends DialogFragment {
                 PostItem postItem = new PostItem(currentUsername, time, commentText);
 
                 commentViewAdapter.getPostList().push(postItem);
+                if(emptyList) {
+                    commentViewAdapter.getPostList().removeLast();
+                    emptyList = false;
+                }
                 commentViewAdapter.notifyDataSetChanged();
             }
         });
