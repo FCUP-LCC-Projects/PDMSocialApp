@@ -1,5 +1,4 @@
-different night/light theme settings
-adjust password fragment appearance
-adjust post fragment appearance
-adjust root_preferences fragment appearance
-make sure the comments dont crash the thing
+Adicionar modos/alterações à aplicação ao root_preference.xml para adicionar às SharedPreferences e para a opção "Settings" do Navigation Drawer não ter só uma opção
+Adicionar transferência de posts com WifiDirect no "Search for new posts" do Navigation Drawer
+Obrigar a ligar a localização ao abrir ChatActivity
+Adicionar opção de mandar imagens por mensagem
