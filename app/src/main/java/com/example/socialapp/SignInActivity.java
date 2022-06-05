@@ -56,7 +56,7 @@ public class SignInActivity extends AppCompatActivity {
         Info.setText("No of attempts remaining: 3");    // Mete o texto como 3 tentativas iniciais de Login
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean nightMode = sharedPreferences.getBoolean("mode", false);
+        boolean nightMode = sharedPreferences.getBoolean(CommCodes.KEY_PREF_MODE, false);
         if (nightMode)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else {
@@ -205,7 +205,7 @@ public class SignInActivity extends AppCompatActivity {
                 UserProfile userProfile = snapshot.getValue(UserProfile.class);
                 System.out.println(userProfile.getUsername());
                 System.out.println(userProfile.getProfileCreated());
-                editor.putString("name", userProfile.getUsername());
+                editor.putString(CommCodes.KEY_PREF_USER, userProfile.getUsername());
                 editor.commit();
                 taskCompletionSource.setResult(userProfile.profileCreated);
             }

@@ -12,13 +12,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreference;
 import androidx.preference.SwitchPreferenceCompat;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-    private static final String KEY_PREF_MODE = "mode";
+
     private SharedPreferences pref;
 
     public static SettingsFragment newInstance() { return new SettingsFragment(); }
@@ -26,25 +27,26 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
-        final SwitchPreferenceCompat modeToggle = (SwitchPreferenceCompat) findPreference("mode");
+        final SwitchPreferenceCompat modeToggle = (SwitchPreferenceCompat) findPreference(CommCodes.KEY_PREF_MODE);
+        final CheckBoxPreference timelineToggle = (CheckBoxPreference) findPreference(CommCodes.KEY_PREF_TIMELINE);
 
         pref = getActivity().getApplicationContext().getSharedPreferences("myPref",MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
 
-        modeToggle.setChecked(pref.getBoolean("mode", false));
+        modeToggle.setChecked(pref.getBoolean(CommCodes.KEY_PREF_MODE, false));
 
         modeToggle.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if(modeToggle.isChecked()){
                     modeToggle.setChecked(false);
-                    editor.putBoolean("mode", false);
+                    editor.putBoolean(CommCodes.KEY_PREF_MODE, false);
                     editor.apply();
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 }
                 else{
                     modeToggle.setChecked(true);
-                    editor.putBoolean("mode", true);
+                    editor.putBoolean(CommCodes.KEY_PREF_MODE, true);
                     editor.apply();
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 }
@@ -52,12 +54,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             }
         });
 
+        timelineToggle.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                if(timelineToggle.isChecked()){
+                    timelineToggle.setChecked(false);
+                    editor.putBoolean(CommCodes.KEY_PREF_TIMELINE, false);
+                    editor.apply();
+                }else{
+                    timelineToggle.setChecked(true);
+                    editor.putBoolean(CommCodes.KEY_PREF_TIMELINE, true);
+                    editor.apply();
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        if(pref.getBoolean("mode", false)) {
+        if(pref.getBoolean(CommCodes.KEY_PREF_MODE, false)) {
             view.setBackgroundColor(getResources().getColor(R.color.black));
 
         }

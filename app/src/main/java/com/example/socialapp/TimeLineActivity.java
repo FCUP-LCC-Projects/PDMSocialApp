@@ -12,8 +12,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -68,7 +66,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
 
         sharedPreferences = getSharedPreferences("myPref", MODE_PRIVATE);
 
-        boolean nightMode = sharedPreferences.getBoolean("mode", false);
+        boolean nightMode = sharedPreferences.getBoolean(CommCodes.KEY_PREF_MODE, false);
         if (nightMode)
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         else {
@@ -78,7 +76,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         }
         
-        currentUsername = sharedPreferences.getString("name", "");
+        currentUsername = sharedPreferences.getString(CommCodes.KEY_PREF_USER, "");
         Log.d("Username", "Current username is: "+currentUsername);
         init();
 
@@ -92,14 +90,21 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
     @Override
     protected void onResume() {
         super.onResume();
-        IOUtils.writeFiletToIStorage(this, postViewAdapter.getPostList());
-        Log.d("IO", "Call to write files to storage");
+        boolean timelineToggle = sharedPreferences.getBoolean(CommCodes.KEY_PREF_TIMELINE, false);
+        if(!timelineToggle) {
+            IOUtils.writeFiletToIStorage(this, postViewAdapter.getPostList());
+            Log.d("IO", "Call to write files to storage");
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        IOUtils.writeFiletToIStorage(this, postViewAdapter.getPostList());
+        boolean timelineToggle = sharedPreferences.getBoolean(CommCodes.KEY_PREF_TIMELINE, false);
+        if(!timelineToggle) {
+            IOUtils.writeFiletToIStorage(this, postViewAdapter.getPostList());
+            Log.d("IO", "Call to write files to storage");
+        }
     }
 
     @SuppressLint("NewApi")
@@ -120,7 +125,11 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
             usernameInView.setText(currentUsername);
         }catch(Exception e){}
 
-        LinkedList<PostItem> postList = IOUtils.readFileFromIStorage(this);
+        boolean timelineToggle = sharedPreferences.getBoolean(CommCodes.KEY_PREF_TIMELINE, false);
+        LinkedList<PostItem> postList = null;
+        if(!timelineToggle) {
+            postList = IOUtils.readFileFromIStorage(this);
+        }
         if(postList == null) postList = new LinkedList<>();
         postViewAdapter = new PostViewAdapter(this, postList);
 

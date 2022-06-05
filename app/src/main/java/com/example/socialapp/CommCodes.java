@@ -5,6 +5,10 @@ class CommCodes {
     public static final String DEVICE_NAME = "deviceName";
     public static final String TOAST_MESSAGE = "toastMessage";
 
+    public static final String KEY_PREF_MODE = "mode";
+    public static final String KEY_PREF_USER = "name";
+    public static final String KEY_PREF_TIMELINE = "timeline";
+
     public static final int UPDATE_PROFILE = 1;
 
     public static final int REQUEST_LOCATION_PERMISSION = 101;

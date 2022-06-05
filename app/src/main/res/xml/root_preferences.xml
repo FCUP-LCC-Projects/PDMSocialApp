@@ -17,4 +17,13 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Timeline">
+
+        <CheckBoxPreference
+            app:key="timeline"
+            app:summary="Delete all posts everytime the app is closed"
+            app:title="Clear Timeline" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
