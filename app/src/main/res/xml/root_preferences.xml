@@ -26,4 +26,20 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Experience">
+
+        <ListPreference
+            app:key="break"
+            app:summary="Remind me to take a break"
+            android:entries="@array/break_names_array"
+            android:entryValues="@array/break_values_array"
+            app:title="Break time" />
+
+        <Preference
+            app:key="report"
+            app:title="Send feedback"
+            app:summary="Report technical issues or suggest new features"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -59,15 +59,14 @@ public class ListDevicesFragment extends DialogFragment {
             peers.addAll(peerList.getDeviceList());
 
             deviceNameArray = new String[peers.size()];
-            deviceArray = new WifiP2pDevice[peers.size()];
 
             int index = 0;
             for (WifiP2pDevice device : peers) {
                 deviceNameArray[index] = device.deviceName;
-                deviceArray[index] = device;
                 index++;
             }
 
+            deviceArray = peers.toArray(new WifiP2pDevice[peers.size()]);
             ArrayAdapter<String> arrayAdapter
                     = new ArrayAdapter<>(getActivity().getApplicationContext(),
                     android.R.layout.simple_list_item_1, deviceNameArray);
