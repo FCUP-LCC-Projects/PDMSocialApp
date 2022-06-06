@@ -137,7 +137,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                     public boolean onPreferenceClick(Preference arg0) {
                         Intent intent = new Intent(Intent.ACTION_SENDTO);
                         intent.setData(Uri.parse("mailto:"));
-                        intent.putExtra(Intent.EXTRA_EMAIL, "up201805265@up.pt");
+                        String[] addr = new String[1];
+                        addr[0] = "up201805265@up.pt";
+                        intent.putExtra(Intent.EXTRA_EMAIL, addr);
                         startActivity(intent);
                         return true;
                     }

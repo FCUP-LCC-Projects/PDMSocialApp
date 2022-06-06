@@ -36,6 +36,8 @@
         </activity>
         <activity android:name=".CreateProfileActivity"
             android:exported="false"/>
+        <activity android:name=".PostCommActivity"
+            android:exported="false"/>
 
         <activity
             android:name=".RegistrationActivity"

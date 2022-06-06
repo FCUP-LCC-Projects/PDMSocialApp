@@ -44,7 +44,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:text="@string/send_message"
-            android:onClick="buttonClicked"
             android:textSize="20sp"/>
 
 

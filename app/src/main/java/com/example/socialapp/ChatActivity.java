@@ -79,9 +79,6 @@ public class ChatActivity extends AppCompatActivity implements ListDevicesFragme
 
     LocationManager locationManager;
 
-    public void buttonClicked(View view) {
-    }
-
     public class ServerThread extends Thread {
         Socket socket;
         ServerSocket serverSocket;
