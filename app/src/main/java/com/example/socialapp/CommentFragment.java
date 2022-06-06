@@ -33,7 +33,7 @@ public class CommentFragment extends DialogFragment {
     private CommentViewAdapter commentViewAdapter;
     private RecyclerView recyclerView;
     private String currentUsername;
-    private Boolean emptyList;
+    private Boolean emptyList = false;
 
 
     public interface onCommentPostedListener{

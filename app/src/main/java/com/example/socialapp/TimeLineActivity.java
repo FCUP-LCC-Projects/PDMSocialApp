@@ -185,7 +185,11 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
     }
 
     private void searchPost() {
-        startActivity(new Intent(TimeLineActivity.this, PostCommActivity.class));
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(TimeLineActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, CommCodes.REQUEST_LOCATION_PERMISSION);
+        } else {
+            startActivity(new Intent(TimeLineActivity.this, PostCommActivity.class));
+        }
     }
 
     @Override
