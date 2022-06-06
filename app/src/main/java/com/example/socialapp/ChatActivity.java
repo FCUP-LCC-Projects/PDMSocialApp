@@ -2,6 +2,7 @@ package com.example.socialapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -238,6 +240,8 @@ public class ChatActivity extends AppCompatActivity implements ListDevicesFragme
     private void runListener() {
 
         sendMessageButton.setOnClickListener(v -> {
+            listView.requestFocus();
+            hideKeyboard(this);
             String msg = editMessageBlock.getText().toString();
             Log.d("message", msg);
             if(!msg.isEmpty() && sendReceiveThread!=null)
@@ -245,6 +249,17 @@ public class ChatActivity extends AppCompatActivity implements ListDevicesFragme
                 editMessageBlock.setText("");
         });
 
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = activity.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     @Override
