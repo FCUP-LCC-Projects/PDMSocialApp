@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
@@ -15,6 +16,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -73,6 +75,10 @@ public class ChatActivity extends AppCompatActivity implements ListDevicesFragme
     ClientThread clientThread;
     SendReceiveThread sendReceiveThread;
 
+    LocationManager locationManager;
+
+    public void buttonClicked(View view) {
+    }
 
     public class ServerThread extends Thread {
         Socket socket;
@@ -176,6 +182,24 @@ public class ChatActivity extends AppCompatActivity implements ListDevicesFragme
 
         runListener();
         setState("Not Connected");
+        if(!CheckGpsStatus()) {
+            Intent intent1 = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent1);
+        }
+    }
+
+    public boolean CheckGpsStatus() {
+        locationManager = (LocationManager)getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
+        assert locationManager != null;
+        boolean gpsStatus = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if(gpsStatus) {
+            Toast.makeText(getApplicationContext(),
+                    "GPS Is Enabled", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    "GPS Is Disabled", Toast.LENGTH_SHORT).show();
+        }
+        return gpsStatus;
     }
 
     Handler handler = new Handler(msg -> {

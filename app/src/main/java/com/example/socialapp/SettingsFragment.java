@@ -3,7 +3,9 @@ package com.example.socialapp;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -129,6 +131,17 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return true;
             }
         });
+        reportCall.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference arg0) {
+                        Intent intent = new Intent(Intent.ACTION_SENDTO);
+                        intent.setData(Uri.parse("mailto:"));
+                        intent.putExtra(Intent.EXTRA_EMAIL, "up201805265@up.pt");
+                        startActivity(intent);
+                        return true;
+                    }
+                });
     }
 
     @Override
