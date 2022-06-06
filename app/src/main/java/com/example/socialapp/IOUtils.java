@@ -2,16 +2,20 @@ package com.example.socialapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.util.Log;
 
 
 import org.json.simple.JSONArray;
 import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
@@ -82,8 +86,10 @@ public class IOUtils {
         String filename = simpleDateFormat.format(new Date());
         File file = new File(dir, filename);
         if(!file.exists()){
-            if(dir.list()[0] != null)
+            if (dir.list()[0] != null) {
                 file = new File(dir, dir.list()[0]);
+                Log.d("READ_FILE", file.getName());
+            }
             else return null;
         }
 
@@ -92,13 +98,49 @@ public class IOUtils {
 
         try(FileReader fileReader = new FileReader(file)){
             JSONArray postArray = (JSONArray) jsonParser.parse(fileReader);
-            Iterator iterator = postArray.iterator();
-            while (iterator.hasNext()){
-                JSONObject postJSON = (JSONObject) iterator.next();
-                posts.add(parsePostFromJSON(postJSON));
-            }
+            posts = parsePostList(postArray);
         }catch(Exception e){
             e.printStackTrace();
+        }
+        return posts;
+    }
+
+    public static String readJSONFromIStorage(Context context) {
+        File dir = new File(context.getFilesDir(), "data-logs");
+        if (!dir.exists()) return null;
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
+        String filename = simpleDateFormat.format(new Date());
+        File file = new File(dir, filename);
+        if (!file.exists()) {
+            if (dir.list()[0] != null) {
+                file = new File(dir, dir.list()[0]);
+                Log.d("READ_FILE", file.getName());
+            }
+            else return null;
+        }
+
+        JSONParser jsonParser = new JSONParser();
+        JSONArray jsonArray = null;
+
+        try (FileReader fileReader = new FileReader(file)) {
+            jsonArray = (JSONArray) jsonParser.parse(fileReader);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return jsonArray.toJSONString();
+    }
+
+    public static LinkedList<PostItem> parsePostList(JSONArray postArray){
+        LinkedList<PostItem> posts = new LinkedList<>();
+        Iterator iterator = postArray.iterator();
+        while (iterator.hasNext()){
+            JSONObject postJSON = (JSONObject) iterator.next();
+            posts.add(parsePostFromJSON(postJSON));
         }
         return posts;
     }
@@ -139,13 +181,12 @@ public class IOUtils {
 
     /****************************** IO CHAT ************************************/
 
-    public static void writeFileToIStorage(Context context, LinkedList<MessageItem> messageList){
+    public static void writeFileToIStorage(Context context, LinkedList<MessageItem> messageList, String device){
         File dir = new File(context.getFilesDir(), "chat-logs");
         if(!dir.exists())
             dir.mkdir();
-        System.out.println(dir.getPath());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
-        String filename = simpleDateFormat.format(new Date());
+        Log.d("Path", dir.getPath());
+        String filename = device;
         File logFile = new File(dir, filename);
         try{
             FileWriter fileWriter = new FileWriter(logFile);
@@ -176,16 +217,17 @@ public class IOUtils {
         return newMessage;
     }
 
-    public static LinkedList<MessageItem> readChatFromIStorage(Context context){
+    public static LinkedList<MessageItem> readChatFromIStorage(Context context, String device){
         File dir = new File(context.getFilesDir(), "chat-logs");
         if(!dir.exists()) return null;
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy");
-        String filename = simpleDateFormat.format(new Date());
+        String filename = device;
         File file = new File(dir, filename);
         if(!file.exists()){
-            if(dir.list()[0] != null)
+            if (dir.list()[0] != null) {
                 file = new File(dir, dir.list()[0]);
+                Log.d("READ_FILE", file.getName());
+            }
             else return null;
         }
 

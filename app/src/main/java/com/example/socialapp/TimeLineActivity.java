@@ -41,6 +41,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 
+import java.sql.Time;
 import java.util.LinkedList;
 
 
@@ -144,6 +145,7 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
         int itemId = item.getItemId();
         switch(itemId){
             case R.id.action_search:
+                searchPost();
                 return true;
             case R.id.settings_profile:
                     startActivity(new Intent(TimeLineActivity.this, CreateProfileActivity.class));
@@ -180,6 +182,10 @@ public class TimeLineActivity extends AppCompatActivity implements PostFragment.
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void searchPost() {
+        startActivity(new Intent(TimeLineActivity.this, PostCommActivity.class));
     }
 
     @Override

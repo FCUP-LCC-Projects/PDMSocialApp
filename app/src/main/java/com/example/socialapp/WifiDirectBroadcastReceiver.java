@@ -1,6 +1,7 @@
 package com.example.socialapp;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,16 +14,23 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private WifiP2pManager wifiP2pManager;
     private WifiP2pManager.Channel channel;
-    private ChatActivity activity;
+    private ChatActivity chatActivity;
+    private PostCommActivity postCommActivity;
     private ListDevicesFragment fragment;
 
     public WifiDirectBroadcastReceiver(WifiP2pManager wifiP2pManager,
                                        WifiP2pManager.Channel channel,
-                                       ChatActivity activity, ListDevicesFragment fragment) {
+                                       Activity activity, ListDevicesFragment fragment) {
         this.wifiP2pManager = wifiP2pManager;
         this.channel = channel;
-        this.activity = activity;
         this.fragment = fragment;
+        this.postCommActivity = null;
+        this.chatActivity = null;
+        if(activity instanceof ChatActivity)
+            chatActivity = (ChatActivity) activity;
+        else if(activity instanceof PostCommActivity)
+            postCommActivity = (PostCommActivity) activity;
+
     }
 
     @Override
@@ -53,9 +61,13 @@ public class WifiDirectBroadcastReceiver extends BroadcastReceiver {
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
 
             if (networkInfo.isConnected()) {
-                wifiP2pManager.requestConnectionInfo(channel, activity.connectionInfoListener);
+                if(chatActivity!=null)
+                    wifiP2pManager.requestConnectionInfo(channel, chatActivity.connectionInfoListener);
+                else if(postCommActivity !=null)
+                    wifiP2pManager.requestConnectionInfo(channel, postCommActivity.connectionInfoListener);
             } else {
-                activity.setState("Device disconnected");
+                if(chatActivity!=null)
+                    chatActivity.setState("Device disconnected");
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             // Respond to this device's Wi-Fi state changing.
